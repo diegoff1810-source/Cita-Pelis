@@ -181,7 +181,7 @@
   <div id="toast"></div>
 
   <!-- Audio Player principal -->
-  <audio id="movieAudio" playsinline loop src="intro.mp3"></audio>
+  <audio id="movieAudio" playsinline loop autoplay src="intro.mp3"></audio>
 
   <div class="card-container">
 
@@ -193,31 +193,31 @@
       
       <div id="buttons-area">
         <button id="yesBtn" class="btn-yes" type="button" onclick="showStep('step-movies')">¡Sí, me encantaría!</button>
-        <button id="noBtn" class="btn-no" type="button" onclick="showStep('step-other-date')">No puedo ese día</button>
+        <button id="noBtn" class="btn-no" type="button" onclick="stopAudio(); showStep('step-other-date')">No puedo ese día</button>
       </div>
     </div>
 
     <!-- PASO 2: Selección de Película -->
     <div id="step-movies" class="step">
-      <h2>✨ ¡Perfecto! ✨</h2>
-      <p>Selecciona una opción para escuchar su canción:</p>
+      <h2>✨ ¡Perfecto!</h2>
+      <p>¿Qué película te gustaría ver?</p>
       
       <button class="movie-btn" 
               onmouseenter="previewAudio('rocky.mp3')" 
-              onclick="selectMovie('Terminar Rocky 5 y ver Rocky 6', 'rocky.mp3')">
-              🥊 Terminar Rocky 5 y ver Rocky 6
+              onclick="selectMovie('Terminar Rocky V y ver Rocky VI', 'rocky.mp3')">
+              🥊 Terminar Rocky V y ver Rocky VI
       </button>
 
       <button class="movie-btn" 
               onmouseenter="previewAudio('up.mp3')" 
               onclick="selectMovie('Up', 'up.mp3')">
-              🎈 Ver Up
+              🎈 Up
       </button>
 
       <button class="movie-btn" 
               onmouseenter="previewAudio('huastecos.mp3')" 
-              onclick="selectMovie('Los tres huastecos', 'huastecos.mp3')">
-              🇲🇽 Ver Los tres huastecos
+              onclick="selectMovie('Los Tres Huastecos', 'huastecos.mp3')">
+              🇲🇽 Los Tres Huastecos
       </button>
     </div>
 
@@ -227,15 +227,15 @@
       <p id="selected-movie-text"></p>
       <p>¿A qué hora estás libre este martes 28 de julio?</p>
       <input type="time" id="timeInput" value="20:00">
-      <button class="action-btn" onclick="scheduleJuly28()">Añadir a mi Calendario de iPhone 📅</button>
+      <button class="action-btn" onclick="scheduleJuly28()">Agendar en mi calendario 📅</button>
     </div>
 
-    <!-- PASO 4: Selección de otra fecha -->
+    <!-- PASO 4: Selección de otra fecha (Opción No) -->
     <div id="step-other-date" class="step">
       <h2>🗓️ ¡No te preocupes!</h2>
       <p>¿Qué día podrías?</p>
       <input type="datetime-local" id="customDateTime">
-      <button class="action-btn" onclick="scheduleCustomDate()">Agendar en mi Calendario de iPhone 📅</button>
+      <button class="action-btn" onclick="scheduleCustomDate()">Agendar en mi calendario 📅</button>
     </div>
 
     <!-- PASO FINAL: Confirmación -->
@@ -265,23 +265,30 @@
   let chosenMovie = "";
   let currentAudioSrc = "intro.mp3";
 
-  // Intentar iniciar la canción intro automáticamente o al primer toque
-  function startIntroAudio() {
+  // Intentar reprodución automática de la intro
+  window.addEventListener('DOMContentLoaded', () => {
     audio.play().catch(() => {
-      // Si el navegador bloquea el autoplay, se activa al primer toque/interacción en la página
-      const enableAudioOnInteraction = () => {
-        audio.play();
-        window.removeEventListener('click', enableAudioOnInteraction);
-        window.removeEventListener('touchstart', enableAudioOnInteraction);
+      // Si el navegador requiere interacción inicial del usuario
+      const startOnInteraction = () => {
+        if (currentAudioSrc === "intro.mp3") {
+          audio.play();
+        }
+        window.removeEventListener('click', startOnInteraction);
+        window.removeEventListener('touchstart', startOnInteraction);
       };
-      window.addEventListener('click', enableAudioOnInteraction);
-      window.addEventListener('touchstart', enableAudioOnInteraction);
+      window.addEventListener('click', startOnInteraction);
+      window.addEventListener('touchstart', startOnInteraction);
     });
-  }
-  
-  window.addEventListener('DOMContentLoaded', startIntroAudio);
+  });
 
-  // Reproducir/Vista previa de la canción
+  // Detener audio por completo (al presionar "No puedo ese día")
+  function stopAudio() {
+    audio.pause();
+    audio.currentTime = 0;
+    currentAudioSrc = "";
+  }
+
+  // Reproducir canción al pasar el cursor o presionar
   function previewAudio(audioFile) {
     if (currentAudioSrc !== audioFile) {
       currentAudioSrc = audioFile;
