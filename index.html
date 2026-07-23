@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Una cita de película 🎬</title>
+<title>Sopresa</title>
 
 <style>
   :root {
@@ -230,7 +230,7 @@
       <h2>🍿 ¡Excelente opción!</h2>
       <p id="selected-movie-text"></p>
       <p>¿A qué hora estás libre este martes 28 de julio?</p>
-      <input type="time" id="timeInput" value="20:00">
+      <input type="time" id="timeInput" value="19:00">
       <button class="action-btn" onclick="scheduleJuly28()">Agendar en mi Calendario 📅</button>
     </div>
 
@@ -238,15 +238,15 @@
     <div id="step-other-date" class="step">
       <h2>🗓️ ¡No te preocupes!</h2>
       <p>¿Qué día podrías?</p>
-      <input type="datetime-local" id="customDateTime">
+      <input type="datetime-local" id="customDateTime" value="2026-07-28T19:00">
       <button class="action-btn" onclick="scheduleCustomDate()">Agendar en mi Calendario 📅</button>
     </div>
 
     <!-- PASO FINAL: Confirmación -->
     <div id="step-final" class="step">
-      <h1>🎉 ¡Cita Agendada! 🎉</h1>
-      <p>Se ha generado el recordatorio para tu calendario.</p>
-      <p>Ya quiero que disfrutemos de nuestra noche de película juntos. ¡Te amo!</p>
+      <h1>🎉 ¡Maravilloso!</h1>
+      <p>Se generó el recordatorio para tu calendario Susy.</p>
+      <p>Nos vemos ese día para disfrutar de nuestra noche de películas. Te amo mi vida.</p>
     </div>
 
   </div>
@@ -345,8 +345,7 @@ END:VCALENDAR`;
     if (!timeVal) return alert("Por favor selecciona una hora");
 
     const [hours, minutes] = timeVal.split(':');
-    const year = new Date().getFullYear();
-    const startDate = new Date(year, 6, 28, hours, minutes);
+    const startDate = new Date(2026, 6, 28, hours, minutes);
     const endDate = new Date(startDate.getTime() + (2 * 60 * 60 * 1000));
 
     downloadICS(
@@ -371,11 +370,6 @@ END:VCALENDAR`;
       endDate
     );
   }
-
-  const defaultDate = new Date();
-  defaultDate.setDate(defaultDate.getDate() + 1);
-  defaultDate.setHours(20, 0, 0, 0);
-  document.getElementById('customDateTime').value = defaultDate.toISOString().slice(0, 16);
 </script>
 
 </body>
