@@ -46,7 +46,7 @@
     50% { opacity: 1; transform: scale(1.2); }
   }
 
-  /* Contenedor principal estilo Ticket / Cartel de Cine */
+  /* Contenedor principal estilo Ticket de Cine */
   .card-container {
     position: relative;
     z-index: 10;
@@ -76,9 +76,10 @@
   /* Área de botones */
   #buttons-area {
     margin-top: 25px;
-    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
     width: 100%;
-    min-height: 120px;
   }
 
   button {
@@ -98,25 +99,20 @@
     background: linear-gradient(135deg, #ffd700, #ff8c00);
     color: #000;
     box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
-    position: relative;
-    left: 50%;
-    transform: translateX(-50%);
-    animation: pulse 1.5s infinite;
+    width: 100%;
   }
-  @keyframes pulse {
-    0% { transform: translateX(-50%) scale(1); }
-    50% { transform: translateX(-50%) scale(1.05); }
-    100% { transform: translateX(-50%) scale(1); }
+  .btn-yes:active {
+    transform: scale(0.98);
   }
 
   .btn-no {
     background: linear-gradient(135deg, #e50914, #8b0000);
     color: #fff;
-    position: absolute;
-    left: 50%;
-    top: 65px;
-    transform: translateX(-50%);
     box-shadow: 0 4px 15px rgba(229, 9, 20, 0.4);
+    width: 100%;
+  }
+  .btn-no:active {
+    transform: scale(0.98);
   }
 
   /* Opciones de películas */
@@ -188,8 +184,8 @@
   <div id="stars"></div>
   <div id="toast"></div>
 
-  <!-- Audio Player Dinámico -->
-  <audio id="movieAudio" preload="auto" loop></audio>
+  <!-- Elemento de Audio -->
+  <audio id="movieAudio" playsinline preload="auto"></audio>
 
   <div class="card-container">
 
@@ -199,8 +195,8 @@
       <p>Querida ratita, me gustaría celebrar estos 5 meses juntos aunque estemos a la distancia, ¿te gustaría ver una película juntos este <b>martes 28 de Julio</b>?</p>
       
       <div id="buttons-area">
-        <button id="yesBtn" class="btn-yes" type="button">¡Sí, me encantaría! 💖</button>
-        <button id="noBtn" class="btn-no" type="button">No puedo 💔</button>
+        <button id="yesBtn" class="btn-yes" type="button" onclick="showStep('step-movies')">¡Sí, me encantaría! 💖</button>
+        <button id="noBtn" class="btn-no" type="button" onclick="showStep('step-other-date')">No puedo ese día 💔</button>
       </div>
     </div>
 
@@ -209,7 +205,7 @@
       <h2>✨ ¡Perfecto! ✨</h2>
       <p>¿Qué película te gustaría ver?</p>
       
-      <button class="movie-btn" onclick="selectMovie('Rocky', 'rocky.mp3')">🥊 Terminar Rocky 5 y ver Rocky 6</button>
+      <button class="movie-btn" onclick="selectMovie('Terminar Rocky 5 y ver Rocky 6', 'rocky.mp3')">🥊 Terminar Rocky 5 y ver Rocky 6</button>
       <button class="movie-btn" onclick="selectMovie('Up', 'up.mp3')">🎈 Ver Up</button>
       <button class="movie-btn" onclick="selectMovie('Los tres huastecos', 'huastecos.mp3')">🇲🇽 Ver Los tres huastecos</button>
     </div>
@@ -226,22 +222,22 @@
     <!-- PASO 4: Selección de otra fecha (Si dijo NO) -->
     <div id="step-other-date" class="step">
       <h2>🗓️ ¡No te preocupes!</h2>
-      <p>¿Qué día y a qué hora podrías tú?</p>
+      <p>¿Qué día podrías?</p>
       <input type="datetime-local" id="customDateTime">
-      <button class="action-btn" onclick="scheduleCustomDate()">Agendar en mi Calendario 📅</button>
+      <button class="action-btn" onclick="scheduleCustomDate()">Agendar en mi Calendario de iPhone 📅</button>
     </div>
 
     <!-- PASO FINAL: Confirmación -->
     <div id="step-final" class="step">
       <h1>🎉 ¡Cita Agendada! 🎉</h1>
-      <p>Se ha preparado el recordatorio para tu calendario.</p>
+      <p>Se ha generado la invitación para tu calendario.</p>
       <p>Ya quiero que disfrutemos de nuestra noche de película juntos. ¡Te amo! ❤️</p>
     </div>
 
   </div>
 
 <script>
-  // Generador de fondo de estrellas
+  // Fondo de estrellas
   const starsContainer = document.getElementById('stars');
   for (let i = 0; i < 50; i++) {
     const star = document.createElement('div');
@@ -254,78 +250,34 @@
     starsContainer.appendChild(star);
   }
 
-  // Lógica del Botón "No" travieso
-  let yesSize = 18;
-  let noClicks = 0;
-  let noIsEscaping = false;
-
-  const noBtn = document.getElementById("noBtn");
-  const yesBtn = document.getElementById("yesBtn");
-  const buttonsArea = document.getElementById("buttons-area");
-  const toast = document.getElementById("toast");
   const audio = document.getElementById("movieAudio");
-
   let chosenMovie = "";
 
-  function showToast(msg) {
-    toast.textContent = msg;
-    toast.classList.add("show");
-    setTimeout(() => toast.classList.remove("show"), 1200);
-  }
-
-  function growYes() {
-    yesSize = Math.min(yesSize + 4, 36);
-    yesBtn.style.fontSize = yesSize + "px";
-    yesBtn.style.padding = (14 + (yesSize - 18)/2) + "px " + (28 + (yesSize - 18)) + "px";
-  }
-
-  function clamp(val, min, max) { return Math.min(Math.max(val, min), max); }
-
-  function moveNo() {
-    const margin = 10;
-    const areaRect = buttonsArea.getBoundingClientRect();
-    const btnRect = noBtn.getBoundingClientRect();
-    const maxX = areaRect.width - btnRect.width - margin;
-    const maxY = areaRect.height - btnRect.height - margin;
-    const x = Math.random() * maxX + margin;
-    const y = Math.random() * maxY + margin;
-
-    noBtn.style.left = clamp(x, margin, maxX + margin) + "px";
-    noBtn.style.top  = clamp(y, margin, maxY + margin) + "px";
-    noBtn.style.transform = "none";
-    growYes();
-  }
-
-  noBtn.addEventListener("click", (e) => {
-    e.preventDefault();
-    noClicks++;
-    if (noClicks === 1) { 
-      showToast("¿Segura? 🥺"); 
-      growYes(); 
-      // Si insiste en darle No, la mandamos al flujo alternativo de fecha
-      setTimeout(() => showStep('step-other-date'), 1000);
-      return; 
-    }
-  });
-
-  // Transición entre pasos
+  // Transición entre pantallas
   function showStep(stepId) {
     document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
     document.getElementById(stepId).classList.add('active');
   }
 
-  yesBtn.addEventListener("click", () => {
-    showStep('step-movies');
-  });
+  // Reproducción de audio optimizada
+  function playAudio(src) {
+    audio.src = src;
+    audio.load();
+    const playPromise = audio.play();
+    if (playPromise !== undefined) {
+      playPromise.catch(error => {
+        console.log("Error al reproducir audio:", error);
+      });
+    }
+  }
 
-  // Selección de Película y Reproducción de Música
+  // Selección de Película
   function selectMovie(movieTitle, audioFile) {
     chosenMovie = movieTitle;
     document.getElementById('selected-movie-text').textContent = `Elegiste: ${movieTitle}`;
     
-    // Cambiar y reproducir audio
-    audio.src = audioFile;
-    audio.play().catch(() => console.log("Auto-play prevenido por el navegador"));
+    // Reproduce la canción correspondiente
+    playAudio(audioFile);
 
     showStep('step-time');
   }
@@ -335,7 +287,7 @@
     return date.toISOString().replace(/-|:|\.\d\d\d/g, "");
   }
 
-  // Generador e Iniciador de descarga de archivo .ics
+  // Descarga de archivo de calendario (.ics)
   function downloadICS(title, description, startDate, endDate) {
     const icsData = 
 `BEGIN:VCALENDAR
@@ -361,17 +313,15 @@ END:VCALENDAR`;
     showStep('step-final');
   }
 
-  // Agendar para el Martes 28 de Julio
+  // Agendar para Martes 28 de Julio
   function scheduleJuly28() {
     const timeVal = document.getElementById('timeInput').value;
     if (!timeVal) return alert("Por favor selecciona una hora");
 
     const [hours, minutes] = timeVal.split(':');
-    
-    // Crear fecha del 28 de Julio (año actual)
     const year = new Date().getFullYear();
-    const startDate = new Date(year, 6, 28, hours, minutes); // Mes 6 es Julio (0-indexed)
-    const endDate = new Date(startDate.getTime() + (2 * 60 * 60 * 1000)); // 2 horas de duración
+    const startDate = new Date(year, 6, 28, hours, minutes); // Mes 6 = Julio
+    const endDate = new Date(startDate.getTime() + (2 * 60 * 60 * 1000));
 
     downloadICS(
       `🎬 Noche de Película: ${chosenMovie}`,
@@ -397,11 +347,11 @@ END:VCALENDAR`;
     );
   }
 
-  // Establecer fecha por defecto en el input alternativo (Mañana)
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  tomorrow.setHours(20, 0, 0, 0);
-  document.getElementById('customDateTime').value = tomorrow.toISOString().slice(0, 16);
+  // Configurar hora por defecto para la opción de fecha personalizada
+  const defaultDate = new Date();
+  defaultDate.setDate(defaultDate.getDate() + 1);
+  defaultDate.setHours(20, 0, 0, 0);
+  document.getElementById('customDateTime').value = defaultDate.toISOString().slice(0, 16);
 </script>
 
 </body>
