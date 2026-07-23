@@ -74,6 +74,10 @@
     margin-bottom: 12px;
   }
 
+  .movie-question {
+    margin-bottom: 22px;
+  }
+
   /* Área de botones */
   #buttons-area {
     margin-top: 25px;
@@ -200,7 +204,7 @@
     <!-- PASO 2: Selección de Película -->
     <div id="step-movies" class="step">
       <h2>✨ ¡Perfecto!</h2>
-      <p>¿Qué película te gustaría ver?</p>
+      <p class="movie-question">¿Qué película te gustaría ver?</p>
       
       <button class="movie-btn" 
               onmouseenter="previewAudio('rocky.mp3')" 
@@ -217,7 +221,7 @@
       <button class="movie-btn" 
               onmouseenter="previewAudio('huastecos.mp3')" 
               onclick="selectMovie('Los Tres Huastecos', 'huastecos.mp3')">
-              🇲🇽 Los Tres Huastecos
+              🇲🇽 &nbsp;Los Tres Huastecos
       </button>
     </div>
 
@@ -227,7 +231,7 @@
       <p id="selected-movie-text"></p>
       <p>¿A qué hora estás libre este martes 28 de julio?</p>
       <input type="time" id="timeInput" value="20:00">
-      <button class="action-btn" onclick="scheduleJuly28()">Agendar en mi calendario 📅</button>
+      <button class="action-btn" onclick="scheduleJuly28()">Agendar en mi Calendario 📅</button>
     </div>
 
     <!-- PASO 4: Selección de otra fecha (Opción No) -->
@@ -235,7 +239,7 @@
       <h2>🗓️ ¡No te preocupes!</h2>
       <p>¿Qué día podrías?</p>
       <input type="datetime-local" id="customDateTime">
-      <button class="action-btn" onclick="scheduleCustomDate()">Agendar en mi calendario 📅</button>
+      <button class="action-btn" onclick="scheduleCustomDate()">Agendar en mi Calendario 📅</button>
     </div>
 
     <!-- PASO FINAL: Confirmación -->
@@ -265,10 +269,9 @@
   let chosenMovie = "";
   let currentAudioSrc = "intro.mp3";
 
-  // Intentar reprodución automática de la intro
+  // Intentar reproducción automática de la intro
   window.addEventListener('DOMContentLoaded', () => {
     audio.play().catch(() => {
-      // Si el navegador requiere interacción inicial del usuario
       const startOnInteraction = () => {
         if (currentAudioSrc === "intro.mp3") {
           audio.play();
@@ -281,14 +284,12 @@
     });
   });
 
-  // Detener audio por completo (al presionar "No puedo ese día")
   function stopAudio() {
     audio.pause();
     audio.currentTime = 0;
     currentAudioSrc = "";
   }
 
-  // Reproducir canción al pasar el cursor o presionar
   function previewAudio(audioFile) {
     if (currentAudioSrc !== audioFile) {
       currentAudioSrc = audioFile;
