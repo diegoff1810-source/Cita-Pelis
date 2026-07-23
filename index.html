@@ -71,6 +71,7 @@
     font-size: 18px;
     line-height: 1.5;
     color: #f0f0f0;
+    margin-bottom: 12px;
   }
 
   /* Área de botones */
@@ -179,19 +180,20 @@
   <div id="stars"></div>
   <div id="toast"></div>
 
-  <!-- Audio Player -->
-  <audio id="movieAudio" playsinline loop></audio>
+  <!-- Audio Player principal -->
+  <audio id="movieAudio" playsinline loop src="intro.mp3"></audio>
 
   <div class="card-container">
 
     <!-- PASO 1: Invitación Inicial -->
     <div id="step-1" class="step active">
       <h1>🎬 Cita de Película 🍿</h1>
-      <p>Amor, aunque no podremos estar juntos para celebrar estos 5 meses, no quería pasar desapercibido tener un ratito juntos. ¿Te gustaría ver una película juntos este <b>martes 28 de julio</b>?</p>
+      <p>Amor, aunque no podremos estar juntos para celebrar estos 5 meses, no quería pasar desapercibido tener un ratito juntos.</p>
+      <p>¿Te gustaría ver una película juntos este <b>martes 28 de julio</b>?</p>
       
       <div id="buttons-area">
-        <button id="yesBtn" class="btn-yes" type="button" onclick="unlockAudio(); showStep('step-movies')">¡Sí, me encantaría!</button>
-        <button id="noBtn" class="btn-no" type="button" onclick="unlockAudio(); showStep('step-other-date')">No puedo ese día</button>
+        <button id="yesBtn" class="btn-yes" type="button" onclick="showStep('step-movies')">¡Sí, me encantaría!</button>
+        <button id="noBtn" class="btn-no" type="button" onclick="showStep('step-other-date')">No puedo ese día</button>
       </div>
     </div>
 
@@ -261,14 +263,23 @@
 
   const audio = document.getElementById("movieAudio");
   let chosenMovie = "";
-  let currentAudioSrc = "";
+  let currentAudioSrc = "intro.mp3";
 
-  // Habilita el audio para iOS/Safari al primer clic
-  function unlockAudio() {
-    audio.play().then(() => {
-      audio.pause();
-    }).catch(() => {});
+  // Intentar iniciar la canción intro automáticamente o al primer toque
+  function startIntroAudio() {
+    audio.play().catch(() => {
+      // Si el navegador bloquea el autoplay, se activa al primer toque/interacción en la página
+      const enableAudioOnInteraction = () => {
+        audio.play();
+        window.removeEventListener('click', enableAudioOnInteraction);
+        window.removeEventListener('touchstart', enableAudioOnInteraction);
+      };
+      window.addEventListener('click', enableAudioOnInteraction);
+      window.addEventListener('touchstart', enableAudioOnInteraction);
+    });
   }
+  
+  window.addEventListener('DOMContentLoaded', startIntroAudio);
 
   // Reproducir/Vista previa de la canción
   function previewAudio(audioFile) {
